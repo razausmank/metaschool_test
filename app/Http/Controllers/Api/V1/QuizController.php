@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Events\QuizPublished;
 use App\Http\Controllers\Controller;
 use App\Models\Quiz;
 use Illuminate\Http\Request;
@@ -81,6 +82,8 @@ class QuizController extends Controller
         $quiz->update([
             'is_published' => 1
         ]);
+        // dispatch teh quiz published event so emails can be sent in background
+        QuizPublished::dispatch($quiz->created_by, $quiz->id);
 
         return customResponse('200', 'Quiz published successfully', $quiz, true);
     }
