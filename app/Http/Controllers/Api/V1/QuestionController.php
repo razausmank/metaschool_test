@@ -11,14 +11,13 @@ use Illuminate\Http\Request;
 class QuestionController extends Controller
 {
 
-    public function store($quiz, Request $request)
+    public function store(Quiz $quiz, Request $request)
     {
         $quiz = Quiz::find($quiz);
 
         if (!$quiz) return customResponse('400', 'No such quiz found', $quiz, false);
 
         if ($quiz->is_published) return customResponse('400', "You can't add questions to a published quiz", $quiz, false);
-
 
         $request->validate([
             'question' => 'required|string',

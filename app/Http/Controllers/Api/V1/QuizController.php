@@ -60,6 +60,7 @@ class QuizController extends Controller
         return customResponse('200', 'Quiz updated successfuly', $quiz, true);
     }
 
+    
     public function delete($id, Request $request)
     {
         $quiz = Quiz::find($id);

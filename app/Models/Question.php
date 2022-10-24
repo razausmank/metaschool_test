@@ -26,17 +26,17 @@ class Question extends Model
         return $this->correct_answer()->first()->answer == $answer;
     }
 
-    public function options_without_correct_answers()
-    {
-        dd($this->id);
-        $is_mcq = $this->is_mcq;
-        return $this->hasMany(Answer::class, 'question_id')->where(function ($query) use ($is_mcq) {
-            dd($is_mcq);
-            if ($this->is_mcq == 1) {
+    // public function options_without_correct_answers()
+    // {
+    //     dd($this->id);
+    //     $is_mcq = $this->is_mcq;
+    //     return $this->hasMany(Answer::class, 'question_id')->where(function ($query) use ($is_mcq) {
+    //         dd($is_mcq);
+    //         if ($this->is_mcq == 1) {
 
-                // I think this should do the trick
-                $query->whereNull('id');
-            }
-        });
-    }
+    //             // I think this should do the trick
+    //             $query->whereNull('id');
+    //         }
+    //     });
+    // }
 }
