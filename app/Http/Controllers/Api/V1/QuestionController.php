@@ -10,14 +10,33 @@ use Illuminate\Http\Request;
 
 class QuestionController extends Controller
 {
+    public function __construct(Request $request)
+    {
+        // makes sure the quiz is present, its not published and it belongs to the current user
+        // defined here so i dont have to define in each function
+        $this->middleware(function ($request, $next) {
+            $quiz = Quiz::find(request()->route('id'));
 
-    public function store(Quiz $quiz, Request $request)
+            if (!$quiz) return customResponse('400', 'No such quiz found', $quiz, false);
+
+            if ($quiz->is_published) return customResponse('400', "You can't modify a published quiz", $quiz, false);
+
+            if ($quiz->created_by != auth()->user()->id) return customResponse('400', "You can't modify someone else's quiz", $quiz, false);
+
+            return $next($request);
+        });
+    }
+
+    /**
+     * Add question to your unpublished quiz
+     *
+     * @param  mixed $quiz
+     * @param  Request $request
+     * @return Json
+     */
+    public function store($quiz, Request $request)
     {
         $quiz = Quiz::find($quiz);
-
-        if (!$quiz) return customResponse('400', 'No such quiz found', $quiz, false);
-
-        if ($quiz->is_published) return customResponse('400', "You can't add questions to a published quiz", $quiz, false);
 
         $request->validate([
             'question' => 'required|string',
@@ -29,6 +48,7 @@ class QuestionController extends Controller
             'is_mcq' => $request->is_mcq,
             'quiz_id' => $quiz->id
         ]);
+
 
         if ($request->answers) {
             foreach ($request->answers as $answer) {
@@ -44,15 +64,20 @@ class QuestionController extends Controller
         return customResponse('200', 'Question added to quiz successfuly', $question, true);
     }
 
+
+    /**
+     * update question of your unpublished quiz
+     *
+     * @param  mixed $quiz
+     * @param  mixed $question
+     * @param  Request $request
+     * @return Json
+     */
     public function update($quiz, $question, Request $request)
     {
         $quiz = Quiz::find($quiz);
 
         $question = Question::where('id', $question)->where('quiz_id', $quiz->id)->first();
-
-        if (!$quiz) return customResponse('400', 'No such quiz found', $quiz, false);
-
-        if ($quiz->is_published) return customResponse('400', "You can't update questions of a published quiz", $quiz, false);
 
         if (!$question) return customResponse('400', 'No such question found', $question, false);
 
@@ -83,14 +108,17 @@ class QuestionController extends Controller
         return customResponse('200', 'Question added to quiz successfuly', $question, true);
     }
 
+
+    /**
+     * delete question from your unpublished quiz
+     *
+     * @param  mixed $quiz_id
+     * @param  mixed $question_id
+     * @param  Request $request
+     * @return Json
+     */
     public function delete($quiz_id, $question_id, Request $request)
     {
-        $quiz = Quiz::find($quiz_id);
-
-        if (!$quiz) return customResponse('400', 'No such quiz found', $quiz, false);
-
-        if ($quiz->is_published) return customResponse('400', "You can't delete questions of a published quiz", $quiz, false);
-
         $question = Question::where('id', $question_id)->where('quiz_id', $quiz_id)->first();
 
         if (!$question) {

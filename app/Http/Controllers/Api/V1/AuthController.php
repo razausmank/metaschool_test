@@ -9,6 +9,12 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
+    /**
+     * register new user
+     *
+     * @param  Request $request
+     * @return Json
+     */
     public function register(Request $request)
     {
         $validated_fields = $request->validate([
@@ -34,6 +40,12 @@ class AuthController extends Controller
     }
 
 
+    /**
+     * login
+     *
+     * @param  Request $request
+     * @return Json
+     */
     public function login(Request $request)
     {
         $validated_fields = $request->validate([
@@ -61,12 +73,19 @@ class AuthController extends Controller
         return response($response, 201);
     }
 
+
+    /**
+     * logout and delete all tokens
+     *
+     * @param  mixed $request
+     * @return Array
+     */
     public function logout(Request $request)
     {
         // delete all tokens of the user
         auth()->user()->tokens()->delete();
 
-        return [
+        return  [
             'message' => 'Logged out'
         ];
     }
